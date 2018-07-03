@@ -58,7 +58,7 @@ bool imdb::getCredits(const string& player, vector<film>& films) const {
   for(int i = (*((int*)actorFile + result)) ;i < *((int*)actorFile + result+1);i++)
     {
       if( *((char*)actorFile+i) != '\0')
-        cout << *((char*)actorFile+i);
+        i;
       else
         {
           current = i - *((int*)actorFile + result);
@@ -71,20 +71,20 @@ bool imdb::getCredits(const string& player, vector<film>& films) const {
     current+=2;
 
   short moveCount = *(short*)((char*)actorFile+current + *((int*)actorFile + result));
-  cout << " Number of movies:" << moveCount << endl;
+  //cout << " Number of movies:" << moveCount << endl;
   if((current+2)%4 == 0)
     current+=2;
   else
     current+=4;
 
-  cout << *(int*)((char*)actorFile+ current  + *((int*)actorFile + result)) << endl;
+  //cout << *(int*)((char*)actorFile+ current  + *((int*)actorFile + result)) << endl;
 
   int* currentPtr = (int*)((char*)actorFile+ current + *((int*)actorFile + result));
   for(int i = 0; i < moveCount;i++)
     {
       string movieName(((char*)movieFile+*(currentPtr+i)));
       films.push_back(film(movieName,(short)*((char*)movieFile+*(currentPtr+i)+movieName.size()+1)));
-      cout <<  movieName<< " made in year:" << (1900 + films.back().year) << endl;
+      //cout <<  movieName<< " made in year:" << (1900 + films.back().year) << endl;
     }
   return true;
 }
@@ -144,29 +144,26 @@ bool imdb::getCast(const film& movie, vector<string>& players) const {
     }
   return false;
  wefind:
-  cout << "Find:" <<
-  strdup((const char*)((char*)movieFile +  *((int*)movieFile+result))) << endl;
+  //cout << "Find:" <<
+  //strdup((const char*)((char*)movieFile +  *((int*)movieFile+result))) << endl;
 
   char* currentPtr =  ((char*)movieFile +  *((int*)movieFile+result));
-  for(int i = 0; i < 20;i++)
-    cout << *(short*)((char*)currentPtr+current+i) << endl;
   current = movie.title.size() + 1;
   current+=1;
   if((current)%2) current++;
   short numberOfActor = *(short*)(currentPtr+current);
-  cout << "Get Actors number:" << numberOfActor << endl;
+  //cout << "Get Actors number:" << numberOfActor << endl;
   current+=2;
   if(((current)%4))
     current+=2;
-  for(int j = -5;j < 5;j++)
-    cout <<  *(int*)(currentPtr+current+ j) << endl;
+  
 
   for(int i =0; i < numberOfActor;i++)
     {
       auto actorPtr {(char*)actorFile + *(int*)(currentPtr+current)};
 
       //cout <<  *(int*)(currentPtr+current) << endl;
-      cout << "Get Actor:" <<  string(actorPtr) << endl;
+      //cout << "Get Actor:" <<  string(actorPtr) << endl;
       players.push_back(string(actorPtr));
       current+=4;
     }

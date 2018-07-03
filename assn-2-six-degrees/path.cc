@@ -27,30 +27,7 @@ void path::addConnection(const film& movie, const string& player)
   links.push_back(connection(movie, player));
 }
 
-template<typename Array,class Element>
-bool path::binarySearch(Array& array,Element& target)
-{
-  int low = 0;
-  int height = array.size();
-  int mid = (low+height)/2;
-  while(low <= height)
-    {
-      int result =  array.at(mid).compare(target);
-      if(result!=0)
-        {
-          if(result > 0)
-              height = mid -1;
-          else
-            low = mid +1;
-        }
-      else
-        {
-          return true;
-        }
-      mid = (height + low) / 2;
-    }
-  return false;
-}
+
 
 /**
  * Remove the last connection pair 
@@ -100,4 +77,29 @@ ostream& operator<<(ostream& os, const path& p)
   }
 
   return os;
+}
+
+void path::putWaitMovie(vector<film> films)
+{
+
+  auto filmIt = films.begin();
+  while(filmIt!=films.end())
+    {
+      if(usedMovie.insert(*filmIt).second)
+        {
+          waitMovie.push_back(*filmIt);
+        }
+    }
+}
+
+void path::putWaitPlayer(vector<string> players)
+{
+  auto playerIt = players.begin();
+  while(playerIt!=players.end())
+    {
+      if(usedPlayer.insert(*playerIt).second)
+        {
+          waitPlayer.push_back(*playerIt);
+        }
+    }
 }

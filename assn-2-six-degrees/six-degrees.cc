@@ -6,6 +6,8 @@
 #include <iomanip>
 #include "imdb.h"
 #include "path.h"
+#include "mypath.h"
+
 using namespace std;
 
 /**
@@ -65,11 +67,11 @@ int main(int argc, const char *argv[])
   while (true) {
     string source = promptForActor("Actor or actress", db);
     if (source == "") break;
-    vector<string> player;
-    if(! db.getCast(film(string("Picture Perfect"),97), player)) break;
-
     string target = promptForActor("Another actor or actress", db);
     if (target == "") break;
+
+    // string source("Kevin Bacon");
+    // string target("E.E. Bell");
     if (source == target) {
       cout << "Good one.  This is only interesting if you specify two different people." << endl;
     } else {
@@ -79,20 +81,89 @@ int main(int argc, const char *argv[])
       db.getCredits(source, currentFileV);
       db.getCredits(target, currentFileV2);
 
-      
       if(currentFileV.size() > currentFileV.size())
         {
           swap(source,target);
           currentFileV = currentFileV2;
           currentFileV2.~vector();
         }
+      list<actorNode> actorStore; // Used to put used actor
+      list<movieNode> movieStore; // Used to put used movie
+      list<actorNode*> PathStore;  // Awesome Looking Up Paths
+
       path ph{source};
       ph.usedPlayer.insert(source);
-      for(auto filmname:currentFileV)
+      
+      actorStore.push_back(actorNode(source));
+      PathStore.push_back(new actorNode(source));
+
+      auto LastEnd = PathStore.begin();
+      //int oldPathLength = 1;
+      for(int deepCount = 1; deepCount < 7;deepCount++)
         {
-          
+          auto paths = LastEnd;
+          auto OnceEnd = PathStore.end();
+          OnceEnd--;
+          bool MoreOnce = true;
+          int cachesize = PathStore.size();
+          while(paths != OnceEnd || MoreOnce)
+            {
+              if(paths==OnceEnd)
+                MoreOnce=!MoreOnce;
+              auto cacheMovie{vector<film>()};
+              db.getCredits((*paths)->actorName,cacheMovie);
+              auto moveIt = cacheMovie.begin();
+              while(moveIt != cacheMovie.end())
+                {
+                  if(ph.usedMovie.insert((*moveIt)).second)
+                    {
+                      movieStore.push_back(movieNode(*moveIt, *paths));
+                      auto cacheActor {vector<string>()};
+                      db.getCast(*moveIt, cacheActor);
+                      auto actorIt = cacheActor.begin();
+                      while(actorIt != cacheActor.end())
+                        {
+                          if(ph.usedPlayer.insert(*actorIt).second)
+                            {
+                              //actorStore.push_back(actorNode(*actorIt,&movieStore.back()));
+                              PathStore.push_back(new actorNode(*actorIt,
+                                                              &movieStore.back()));
+                              if(*actorIt == target)
+                                {
+                                  goto wefindit;
+                                }
+                            }
+                          actorIt++;
+                        }
+                    }
+                  moveIt++;
+                }
+              paths++;
+            }
+          auto it = PathStore.begin();
+          while(cachesize > 0)
+            {
+              it++;
+              cachesize--;
+            }
+          LastEnd = it;
         }
       cout << endl << "No path between those two people could be found." << endl << endl;
+      continue;
+    wefindit:
+      cout << "We Find by:";
+      auto GetsPath = PathStore.back();
+      while(true)
+        {
+          GetsPath->show();
+          if(GetsPath->ptrtoFilm != nullptr)
+            GetsPath = GetsPath->ptrtoFilm->show();
+          else
+            {
+              cout << endl;
+              break;
+            }
+        }
     }
   }
   

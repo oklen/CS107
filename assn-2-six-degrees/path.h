@@ -118,15 +118,37 @@ class path {
   void reverse();
 
   template<typename Array,class Element>
-  bool binarySearch(Array& array,Element& target);
+  bool binarySearch(Array& array,Element& target)
+  {
+    int low = 0;
+    int height = array.size();
+    int mid = (low+height)/2;
+    while(low <= height)
+      {
+        int result =  array.at(mid).compare(target);
+        if(result!=0)
+          {
+            if(result > 0)
+              height = mid -1;
+            else
+              low = mid +1;
+          }
+        else
+          {
+            return true;
+          }
+        mid = (height + low) / 2;
+      }
+    return false;
+  }
 
 public:
   list<string> waitPlayer;      // this is same as blow
-  list<string> waitMovie;       // We increace it by push back and decrease it by pop front
+  list<film> waitMovie;       // We increace it by push back and decrease it by pop front
   void putWaitPlayer(vector<string> players);
   void putWaitMovie(vector<film> films);
   set<string> usedPlayer;
-  set<string> usedMovie;
+  set<film> usedMovie;
  private:
   // private struct definition... no one else uses it, so I define it internally
   // if you think about it, the existence of this struct is really an implementation detail,
